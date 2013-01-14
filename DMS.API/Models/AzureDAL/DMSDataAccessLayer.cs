@@ -20,13 +20,21 @@ namespace DMS.API.Models.AzureDAL
         /// Method to Read User Data From DMS Table 
         /// </summary>
         /// <param name="User"></param>
-        public User ReadFromDMS(User user)
+        public UserDTO ReadFromDMS(User user)
         {
-            var tempUser = from u in dmsContext.Users
-                           where u.ID == user.ID
-                           select u;
-            
-            return (User)tempUser;
+            UserDTO tempUser = null;
+
+            try
+            {
+                tempUser = MapUsersDTO().First(u => u.ID == user.ID);
+            }
+
+            catch (Exception e)
+            {
+                Logger.ErrorLog(e.Message);
+            }
+
+            return tempUser;
         }
 
         /// <summary>
@@ -38,8 +46,9 @@ namespace DMS.API.Models.AzureDAL
             try
             {
                 dmsContext.AddToUsers(user);
-                dmsContext.SaveChanges(System.Data.Objects.SaveOptions.AcceptAllChangesAfterSave);
+                dmsContext.SaveChanges(System.Data.Objects.SaveOptions.None);
             }
+
             catch (Exception e)
             {
                 Logger.ErrorLog(e.Message);
@@ -50,59 +59,61 @@ namespace DMS.API.Models.AzureDAL
         /// Method to Update user Data in DMS Table 
         /// </summary>
         /// <param name="User"></param>
-        public void UpdateToDMS(User user)
+        public bool UpdateToDMS(User user)
         {
-            this.UpdateUserData(user);
+            return (this.UpdateUserData(user) ? true : false);
+            
         }
 
         /// <summary>
         /// Method To Delete User Data from DMS Table 
         /// </summary>
         /// <param name="User"></param>
-        public void DeleteFromDMS(User user)
+        public bool  DeleteFromDMS(User user)
         {
-            this.DeleteUserData(user);
-            //dmsContext.SaveChanges(System.Data.Objects.SaveOptions.AcceptAllChangesAfterSave);
+            return (this.DeleteUserData(user) ? true : false);
         }
 
         /// <summary>
         /// Method To Read All Users from DMS Tables
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<User> ReadAllUsersFromDMS(int[] userIds = null)
+        public IEnumerable<UserDTO> ReadAllUsersFromDMS(int[] userIds = null)
         {
-            IEnumerable<User> tempUser = null;
-            
             try
             {
-                //tempUser = from u in dmsContext.Users
-                //           where userIds.Contains(u.ID)
-                //           select u;
-                tempUser = dmsContext.Users;
-
+                return MapUsersDTO().AsEnumerable();
             }
+
             catch (Exception e)
             {
                 Logger.ErrorLog(e.Message);
+                throw e;
             }
 
-            return tempUser;
+            
         }
-
-        // TODO: Add Overloaded Method for WorkItem Table 
 
         /// <summary>
         /// Method to read Work item from DMS
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public WorkItem ReadFromDMS(WorkItem item)
+        public WorkItemDTO ReadFromDMS(WorkItem item)
         {
-            var tempItem = from i in dmsContext.WorkItems
-                           where i.ID == item.ID
-                           select i;
+            WorkItemDTO tempItem = null;
+           try
+            {
+                tempItem = MapWorkItemsDTO().First(u => u.ID == item.ID);
+            }
 
-            return (WorkItem)tempItem;
+            catch (Exception e)
+            {
+                Logger.ErrorLog(e.Message);
+                throw e;
+            }
+
+            return tempItem;
  
         }
 
@@ -147,15 +158,13 @@ namespace DMS.API.Models.AzureDAL
         /// Method to read all workitems from DMS
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<WorkItem> ReadAllWorkItemsFromDMS(int[] itemList = null)
+        public IEnumerable<WorkItemDTO> ReadAllWorkItemsFromDMS(int[] itemList = null)
         {
-            IEnumerable<WorkItem>tempItem = null;
+            IEnumerable<WorkItemDTO> tempItem = null;
 
             try
             {
-                tempItem = from i in dmsContext.WorkItems
-                           where itemList.Contains(i.ID)
-                           select i;
+                tempItem = MapWorkItemsDTO().AsEnumerable();
             }
             catch (Exception e)
             {
@@ -167,94 +176,179 @@ namespace DMS.API.Models.AzureDAL
         }
         #endregion
 
+        private IQueryable<UserDTO> MapUsersDTO()
+        {
+            return from u in dmsContext.Users
+                   select new UserDTO() { ID = u.ID, First_Name = u.First_Name, Last_Name = u.Last_Name, Login_Id = u.Login_Id, Password = u.Password, Role = u.Role };
+        }
+
+
+        private IQueryable<WorkItemDTO> MapWorkItemsDTO()
+        {
+            return from u in dmsContext.WorkItems
+                   select new WorkItemDTO()
+                   {
+                       ID = u.ID,
+                       type = u.Type,
+                       Status = u.Status,
+                       Title = u.Title,
+                       Description = u.Description,
+                       Priority = u.Priority,
+                       Severity = u.Severity,
+                       Environment = u.Environment,
+                       OS = u.OS,
+                       Browser = u.Browser,
+                       Resolution = u.Resolution,
+                       Build = u.Build,
+                       AssignTo = u.AssignTo,
+                       OpenedBy = u.OpenedBy,
+                       ActivatedBy = u.ActivatedBy,
+                       ClosedBy = u.ClosedBy,
+                       AreaPath = u.AreaPath
+                   };
+        }
+
+
         #region CRUD Methods
 
-        private void UpdateUserData(User user)
+        private bool UpdateUserData(User user)
         {
+            bool isUpdated = false;
+            try
+            {
+
+                if (user != null && user.ID > 0)
+                {
+                    User tempUser = dmsContext.Users.First(i => i.ID == user.ID);
+
+                    if (tempUser != null)
+                    {
+                        // TODO : Write Custom SP's for each DB operation and call corresponding methods here
+                        // Doing it programatically is ****
+                        tempUser.First_Name = user.First_Name;
+                        tempUser.Last_Name = user.Last_Name;
+                        tempUser.Login_Id = user.Login_Id;
+                        tempUser.Password = user.Password;
+                        tempUser.Role = tempUser.Role;
+                        
+                        dmsContext.SaveChanges();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorLog(e.Message);
+            }
+
+            return isUpdated;
+        }
+                    
+        private bool DeleteUserData(User user)
+        {
+            bool isDeleted = false;
             try
             {
                 if (user != null && user.ID > 0)
                 {
                     User tempUser = dmsContext.Users.First(i => i.ID == user.ID);
-                    dmsContext.SaveChanges();
+                    if (tempUser != null)
+                    {
+                        dmsContext.DeleteObject(tempUser);
+                        dmsContext.SaveChanges();
+                        isDeleted= true;
+                    }
+                    else
+                    {
+                        isDeleted = false;
+                    }
                 }
                 else
                 {
-                    throw new ArgumentNullException();
+                    throw new ArgumentException();
                 }
             }
             catch (Exception e)
             {
-                
-                Logger.ErrorLog(e.Message); // TODO: Add custome Exceptions/ Logs
+                Logger.ErrorLog(e.Message); // TODO: Add custom Exceptions/ Logs
             }
+
+            return isDeleted;
         }
 
-        private void DeleteUserData(User user)
+        private bool UpdateWorkItemData(WorkItem item)
         {
-            try
-            {
-                if (user != null && user.ID > 0)
-                {
-                    User tempUser = dmsContext.Users.First(i => i.ID == user.ID);
-                    dmsContext.DeleteObject(tempUser);
-                    dmsContext.SaveChanges();
-                }
-                else
-                {
-                    throw new ArgumentNullException();
-                }
-
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorLog(e.Message); // TODO: Add custome Exceptions/ Logs
-            }
-        }
-
-        private void UpdateWorkItemData(WorkItem item)
-        {
+            bool isUpdated = false;
             try
             {
                 if (item != null && item.ID > 0)
                 {
                     WorkItem tempItem = dmsContext.WorkItems.First(i => i.ID == item.ID);
-                    dmsContext.SaveChanges();
+                    if (tempItem != null)
+                    {
+
+                        // TODO : Write Custom SP's for each DB operation and call corresponding methods here
+                        dmsContext.SaveChanges();
+                        isUpdated =  true;
+                    }
+                    else
+                    {
+                        isUpdated = false;
+                    }
                 }
                 else
                 {
-                    throw new ArgumentNullException();
+                    throw new ArgumentException();
                 }
             }
             catch (Exception e)
             {
 
-                Logger.ErrorLog(e.Message); // TODO: Add custome Exceptions/ Logs
+                Logger.ErrorLog(e.Message); // TODO: Add custom Exceptions/ Logs
             }
- 
+            
+            return isUpdated;
         }
 
-        private void DeleteWorkItemData(WorkItem item)
+        private bool DeleteWorkItemData(WorkItem item)
         {
+            bool isDeleted = false;
             try
             {
                 if (item != null && item.ID > 0)
                 {
                     WorkItem tempItem = dmsContext.WorkItems.First(i => i.ID == item.ID);
-                    dmsContext.DeleteObject(tempItem);
-                    dmsContext.SaveChanges();
+                    if (tempItem != null)
+                    {
+                        dmsContext.DeleteObject(tempItem);
+                        dmsContext.SaveChanges();
+                        isDeleted = true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    throw new ArgumentNullException();
+                    throw new ArgumentException();
                 }
 
             }
             catch (Exception e)
             {
-                Logger.ErrorLog(e.Message); // TODO: Add custome Exceptions/ Logs
+                Logger.ErrorLog(e.Message); // TODO: Add custom Exceptions/ Logs
             }
 
+            return isDeleted;
         }
 
         #endregion 

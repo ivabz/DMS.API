@@ -4,36 +4,79 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using DMS.API.Models.AzureDAL;
+using DMS.API.Utilities;
+using DMS.API.Models;
+
 
 namespace DMS.API.Controllers
 {
     public class WorkItemController : ApiController
     {
-        // GET api/<controller>
-        public IEnumerable<string> Get()
+        
+        DMSDataAccessLayer DBWorkItem = new DMSDataAccessLayer();
+
+        // GET api/WorkItem
+        public IEnumerable<WorkItemDTO> GetWorkItems()
         {
-            return new string[] { "value1", "value2" };
+            return DBWorkItem.ReadAllWorkItemsFromDMS();
         }
 
-        // GET api/<controller>/5
-        public string Get(int id)
+        // GET api/WorkItem/5
+        public WorkItemDTO GetWorkItem(WorkItem item)
         {
-            return "value";
+            return DBWorkItem.ReadFromDMS(item);
         }
 
-        // POST api/<controller>
-        public void Post([FromBody]string value)
+        // POST api/WorkItem
+        [HttpPost]
+        public HttpResponseMessage PostWorkItem(WorkItem item)
         {
+            try
+            {
+                DBWorkItem.InsertToDMS(item);
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorLog(e.Message);
+                throw e;
+            }
+
+            return Request.CreateResponse(HttpStatusCode.Created);    
         }
 
-        // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
+        // PUT api/WorkItem/5
+        [HttpPut]
+        public HttpResponseMessage PutWorkItem(WorkItem item)
         {
+            try
+            {
+                DBWorkItem.UpdateToDMS(item);
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorLog(e.Message);
+                throw e;
+            }
+
+            return Request.CreateResponse(HttpStatusCode.Created);   
         }
 
-        // DELETE api/<controller>/5
-        public void Delete(int id)
+        // DELETE api/WorkItem/5
+        [HttpDelete]
+        public HttpResponseMessage DeleteWorkitem(WorkItem item)
         {
+            try
+            {
+                DBWorkItem.DeleteFromDMS(item);
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorLog(e.Message); // TODO: throw proper exceptions.
+                throw e;
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
     }
 }

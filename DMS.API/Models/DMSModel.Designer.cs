@@ -33,7 +33,7 @@ namespace DMS.API.Models
         /// </summary>
         public DefectManagementSystemEntities() : base("name=DefectManagementSystemEntities", "DefectManagementSystemEntities")
         {
-            this.ContextOptions.LazyLoadingEnabled = true;
+            this.ContextOptions.LazyLoadingEnabled = false;
             OnContextCreated();
         }
     
@@ -42,7 +42,7 @@ namespace DMS.API.Models
         /// </summary>
         public DefectManagementSystemEntities(string connectionString) : base(connectionString, "DefectManagementSystemEntities")
         {
-            this.ContextOptions.LazyLoadingEnabled = true;
+            this.ContextOptions.LazyLoadingEnabled = false;
             OnContextCreated();
         }
     
@@ -51,7 +51,7 @@ namespace DMS.API.Models
         /// </summary>
         public DefectManagementSystemEntities(EntityConnection connection) : base(connection, "DefectManagementSystemEntities")
         {
-            this.ContextOptions.LazyLoadingEnabled = true;
+            this.ContextOptions.LazyLoadingEnabled = false;
             OnContextCreated();
         }
     

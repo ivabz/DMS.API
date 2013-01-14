@@ -1,46 +1,290 @@
-﻿<header>
+﻿
+@section Scripts {
+  <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")"></script>
+  <script type="text/javascript">
+
+      function AppViewModel() {
+          var self = this;
+          var isUpdateInfo = null;
+
+          //    self.allUsers = ko.observableArray();
+          //    self.userInfo = ko.observableArray();
+          //    self.errorMessage = ko.observable(null);
+
+          //    function AllUserViewModel(root, user) {
+          //        var self = this;
+          //        self.ID = user.ID;
+          //        self.First_Name = user.First_Name;
+          //        self.Last_Name = user.Last_Name;
+          //        self.Login_Id = user.Login_Id;
+          //        self.Password = user.Password;
+          //        self.Role = user.Role;
+          //        self.Quantity = ko.observable(0);
+
+          //        self.DeleteUser = function () {
+
+          //            // send DELETE request here
+
+          //            var jqxhr = $.ajax({
+          //                type: 'DELETE',
+          //                url: "api/user",
+          //                contentType: 'application/json; charset=utf-8',
+          //                data: ko.toJSON({ Details: user}),
+          //                dataType: "json",
+          //                success: function (user) {
+          //                    self.errorMessage(null);
+          //                    self.allUsers.remove(user);
+          //                },
+          //                error: function (jqXHR, textStatus, errorThrown) {
+          //                    self.errorMessage(errorThrown);
+          //                }
+          //            });
+
+          //        }
+          //    }
+
+          //    function userInfoViewModel(root, userInfo) {
+          //        var self = this;
+          //        self.ID = userInfo.ID
+          //        self.First_Name = userInfo.First_Name;
+          //        self.Last_Name = userInfo.Last_Name;
+          //        self.Login_Id = userInfo.Login_Id;
+          //        self.Password = userInfo.Password;
+          //        self.Role = userInfo.Role;
+
+          //        self.createUser = function () {
+
+          //            var jqxhr = $.ajax("api/user",{
+          //                type: 'POST', contentType: 'application/json; charset=utf-8',                                        
+          //                data: ko.toJSON({ user: self.userInfo }),
+          //                dataType: "json",
+          //                success: function () {
+          //                    self.errorMessage(null);
+          //                    root.allUsers.push(self.userInfo);
+          //                },
+          //                error: function (jqXHR, textStatus, errorThrown) {
+          //                    self.errorMessage(errorThrown);
+          //                }
+          //            });
+          //        }
+          //    }
+
+
+
+
+
+          //    //self.removeUserInfo = function () {
+          //    //    root.userInfo.removeAll();
+          //    //};
+
+
+          //    //self.createUserInfo = function () {
+
+
+          //    //};
+          //    //self.updateUserInfo = function () {
+
+
+          //    //};
+
+
+          //    // Initialize the view-model
+          //    $.getJSON("/api/User", function (allUsers) {
+          //        $.each(allUsers, function (index, user) {
+          //            self.allUsers.push(new AllUserViewModel(self, user));
+          //        })
+          //    });
+          //}
+
+          function AppViewModel() {
+              var self = this;
+
+              function user(data) {
+                  var self = this;
+                  self.ID = ko.observable(data.ID);
+                  self.First_Name = ko.observable(data.First_Name);
+                  self.Last_Name = ko.observable(data.Last_Name);
+                  self.Login_Id = ko.observable(data.Login_Id);
+                  self.Password = ko.observable(data.Password);
+                  self.Role = ko.observable(data.Role);
+              }
+
+              function allUsersViewModel(root, user) {
+                  var self = this;
+                  self.allUsers = ko.observableArray([]);
+                  self.userInfo = ko.observable();
+              }
+
+
+              // Initialize the view-model
+              $.getJSON("/api/User", function (allUsers) {
+                  $.each(allUsers, function (index, user) {
+                      self.allUsers.push(new AllUserViewModel(self, user));
+                  })
+              });
+          }
+      }
+
+    $(document).ready(function () {
+        var viewModel = new AppViewModel();
+        ko.applyBindings(viewModel);
+    }); 
+
+  </script>
+}
+
+<header>
     <div class="content-wrapper">
         <div class="float-left">
             <p class="site-title">
-                <a href="~/">DMS Web API</a></p>
+                <a href="~/">Defect Management System</a></p>
+            <br />
         </div>
     </div>
 </header>
+
 <div id="body">
     <section class="featured">
         <div class="content-wrapper">
             <hgroup class="title">
-                <h1>Welcome to DMS Web API!</h1>
-                <h2>Jump start your app development using this ASP.NET Web API for Defect Management System. (DMS)</h2>
+                <h1>DMS Admin Console </h1>
+                <h3>An Admin interface to manage your users for Defect management system</h3>
             </hgroup>
-            <p>
-               DMS Web API allows you to Build Crossplatform application on the top of this ASP.NET Web API 
+            <p> Build on the Top of DMS Web API, 
+               DMS  Admin helps you administrate User roles (Add/Update/Delete) through this web interface.
             </p>
             <p></p>
         </div>
     </section>
-    @*<section class="content-wrapper main-content clear-fix">
-        <h3>We suggest the following steps:</h3>
-        <ol class="round">
-            <li class="one">
-                <h5>Getting Started</h5>
-                ASP.NET Web API is a framework that makes it easy to build HTTP services that reach
-                a broad range of clients, including browsers and mobile devices. ASP.NET Web API
-                is an ideal platform for building RESTful applications on the .NET Framework.
-                <a href="http://go.microsoft.com/fwlink/?LinkId=245160">Learn more…</a>
-            </li>
+    <section class="content-wrapper main-content clear-fix">
+        <div class="errorMessage "></div>
+        <br />
+               
+        <div id="allUsers" class="float-left" data-bind="visible: allUsers().length > 0">
+            <h4>All Users</h4>
+            <table class="details ui-widget-content">
+                <thead>
+                    <tr>
+                        <td>User ID</td>
+                        <td>First Name</td>
+                        <td>Last Name</td>
+                        <td>Role</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: allUsers">
+                    <tr>
+                        <td><span data-bind="text: $data.ID"></span></td>
+                        <td><span data-bind="text: $data.First_Name"></span></td>
+                        <td><span data-bind="text: $data.Last_Name"></span></td>
+                        <td><span data-bind="text: $data.Role"></span></td>
+                        <td><a href="#">Update</a></td>
+                        <td><a href="#" data-bind="click: self.DeleteUser">Delete</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-            <li class="two">
-                <h5>Add NuGet packages and jump-start your coding</h5>
-                NuGet makes it easy to install and update free libraries and tools.
-                <a href="http://go.microsoft.com/fwlink/?LinkId=245161">Learn more…</a>
-            </li>
-            <li class="three">
-                <h5>Find Web Hosting</h5>
-                You can easily find a web hosting company that offers the right mix of features
-                and price for your applications.
-                <a href="http://go.microsoft.com/fwlink/?LinkId=245164">Learn more…</a>
-            </li>
-        </ol>
-    </section>*@
+        <div id="userInfo" class="float-right">
+            <form>
+                <table>
+                    <thead>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Id</label></td>
+                            <td>
+                                <input data-bind="text: $data.ID" /></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>First Name</label></td>
+                            <td>
+                                <input data-bind="text: $data.First_Name" /></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Last Name</label></td>
+                            <td>
+                                <input data-bind="text: $data.Last_Name" /></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>LogIn ID</label></td>
+                            <td>
+                                <input data-bind="text: $data.Login_Id" /></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Password</label></td>
+                            <td>
+                                <input data-bind="text: $data.Password" type="password" /></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Role</label></td>
+                            <td>
+                                <input data-bind="text: $data.Role" /></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <button type="submit" data-bind="click: self.createUser">Create User </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    
+
+         <div id="userInfo" class="float-right">
+            <table>
+            <thead>
+                <tr><td></td>
+                    <td></td>
+                </tr>
+            </thead>    
+            <tbody>
+                <tr>
+                    <td><label>Id</label></td>
+                    <td><Input data-bind="text: $data.ID"/></td>                    
+                </tr>
+                <tr>
+                    <td><label>First Name</label></td>
+                    <td><Input data-bind="text: $data.First_Name"/></td>                    
+                </tr>
+                <tr>
+                    <td><label>Last Name</label></td>
+                    <td><Input data-bind="text: $data.Last_Name"/></td>                    
+                </tr>
+                <tr>
+                    <td><label>LogIn ID</label></td>
+                    <td><Input data-bind="text: $data.Login_Id"/></td>                    
+                </tr>
+                <tr>
+                    <td><label>Password</label></td>
+                    <td><Input data-bind="text: $data.Password" type="password"/></td>                    
+                </tr>
+                <tr>
+                    <td><label>Role</label></td>
+                    <td><Input data-bind="text: $data.Role"/></td>                    
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button data-bind="click: self.createUser"> Create User </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>  
+
+    </section>
 </div>

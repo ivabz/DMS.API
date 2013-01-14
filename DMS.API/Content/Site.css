@@ -278,7 +278,7 @@ ol.round {
         ol.round li.three {
             background: url("../Images/orderedList3.png") no-repeat;
         }
-
+            
         ol.round li.four {
             background: url("../Images/orderedList4.png") no-repeat;
         }
@@ -302,6 +302,17 @@ ol.round {
         ol.round li.nine {
             background: url("../Images/orderedList9.png") no-repeat;
         }
+
+/*ol.userslist {
+    list-style-type: none;
+    padding-left: 0;   
+}
+
+ol.userslist li div span {
+    font-size : medium;
+    font-weight:700;
+}*/
+
 
 /* content */
 article {
@@ -431,7 +442,7 @@ input, textarea {
     font-size: 1.2em;
     margin: 5px 0 6px 0;
     padding: 5px;
-    width: 300px;
+    width: inherit;
 }
 
 textarea {
@@ -472,9 +483,11 @@ textarea {
 
 /* info and errors */
 .message-info {
-    border: 1px solid;
+    border:hidden;
     clear: both;
-    padding: 10px 20px;
+    font-weight: bold;
+    padding:inherit;
+    text-align: center;
 }
 
 .message-error {
@@ -581,6 +594,14 @@ td {
     padding: 0.25em 2em 0.25em 0em;
     border: 0 none;
 }
+
+    td a:active {
+        color: aliceblue;
+    }
+    
+    td a:hover{
+        color:blue;
+    }
 
 tr.pager td {
     padding: 0 0.25em 0 0;
