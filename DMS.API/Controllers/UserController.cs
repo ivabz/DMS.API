@@ -87,10 +87,6 @@ namespace DMS.API.Controllers
                 Logger.ErrorLog(e.Message); // TODO: throw proper exceptions.
                 throw e;
             }
-            
-            return Request.CreateResponse(HttpStatusCode.OK);
         }
-
-         
     }
 }

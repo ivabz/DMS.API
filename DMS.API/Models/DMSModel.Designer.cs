@@ -107,6 +107,7 @@ namespace DMS.API.Models
         public void AddToUsers(User user)
         {
             base.AddObject("Users", user);
+            
         }
     
         /// <summary>
