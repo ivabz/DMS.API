@@ -9,7 +9,6 @@
 3. ASP.NET MVC 4
 4. Windows Azure SQL Database
 5. Knockout.js (MVVM based Forntend data binding for Reqest/Response calls)
-6. 
 
 <H4>DMS API is full REST Implementation for traditional defect tracking and Management tasks. It implements - </H4>
 
